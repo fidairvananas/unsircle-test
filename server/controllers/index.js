@@ -1,4 +1,4 @@
-const {User, Product, Company} = require('../models')
+const {User, Product, Company, Transaction} = require('../models')
 const {comparePassword} = require('../helpers/hashPass')
 const {signToken} = require('../helpers/jwt');
 
@@ -221,8 +221,104 @@ class CompanyController {
   }
 }
 
+class TransactionController {
+  static async createTransaction(req, res, next){
+    try {
+      const { orderNumber, quantity, total, ProductId, CompanyId } = req.body
+      const result = await Transaction.create({
+        orderNumber,
+        quantity,
+        total,
+        ProductId,
+        CompanyId
+      })
+
+      res.status(201).json(result)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  static async getTransaction(req, res, next){
+    try {
+      const result = await Transaction.findAll({
+        include: [
+          {
+            model: Product
+          },
+          {
+            model: Company
+          }
+        ]
+      })
+      res.status(200).json(result)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  static async editTransaction(req, res, next){
+    try {
+      const { id } = req.params
+      const { orderNumber, quantity, total, ProductId, CompanyId } = req.body
+
+      const find = await Transaction.findByPk(id)
+      if (find) {
+        const result = await Transaction.update({
+          orderNumber,
+          quantity,
+          total,
+          ProductId,
+          CompanyId
+        }, {
+          where: {
+            id: id
+          },
+          returning: true
+        })
+
+        res.status(200).json({message: 'Update transaction success', data: result[1][0]})
+      } else {
+        throw {
+          code: 404,
+          name: 'Not Found',
+          message: 'Transaction not found'
+        }
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+
+
+  static async deleteTransaction(req, res, next){
+    try {
+      const { id } = req.params
+      const find = await Transaction.findByPk(id)
+      if (find) {
+        await Transaction.destroy({
+          where: {
+            id: id
+          }
+        })
+
+        res.status(200).json({message: 'Transaction success deleted'})
+      } else {
+        throw {
+          code: 404,
+          name: 'Not Found',
+          message: 'Transaction not found'
+        }
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+
 module.exports = {
   UserController,
   ProductController,
-  CompanyController
+  CompanyController,
+  TransactionController
 }
