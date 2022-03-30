@@ -11,20 +11,20 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
-      descrption: {
+      description: {
         type: Sequelize.TEXT
       },
       imageUrl: {
         type: Sequelize.STRING
       },
-      CompaniesId: {
+      CompanyId: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Companies',
-          key: 'id'
+          model: "Companies",
+          key: "id"
         },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       },
       createdAt: {
         allowNull: false,
